@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>性格职业测评</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding-bottom: 30px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #3a86ff;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .intro {
+            margin-bottom: 25px;
+            text-align: center;
+            color: #555;
+            font-size: 15px;
+            padding: 0 10px;
+        }
+        
+        .progress-container {
+            margin-bottom: 20px;
+            background-color: #eee;
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: #3a86ff;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .question-container {
+            display: none;
+            margin-bottom: 20px;
+        }
+        
+        .question-text {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .option {
+            padding: 12px 15px;
+            background-color: #f0f5ff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #d4e4ff;
+        }
+        
+        .option:hover {
+            background-color: #e0ebff;
+            transform: translateY(-2px);
+        }
+        
+        .option.selected {
+            background-color: #3a86ff;
+            color: white;
+            border-color: #3a86ff;
+        }
+        
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 15px;
+        }
+        
+        .btn-prev {
+            background-color: #e0e0e0;
+            color: #555;
+        }
+        
+        .btn-prev:hover {
+            background-color: #d0d0d0;
+        }
+        
+        .btn-next {
+            background-color: #3a86ff;
+            color: white;
+        }
+        
+        .btn-next:hover {
+            background-color: #2a76ef;
+        }
+        
+        #start-container {
+            text-align: center;
+        }
+        
+        #start-btn {
+            background-color: #3a86ff;
+            color: white;
+            padding: 12px 30px;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        
+        #start-btn:hover {
+            background-color: #2a76ef;
+        }
+        
+        #results-container {
+            display: none;
+        }
+        
+        .result-card {
+            background-color: #f0f5ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .result-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #3a86ff;
+            margin-bottom: 10px;
+        }
+        
+        .personality-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        
+        .trait-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .trait-name {
+            width: 100px;
+            font-size: 14px;
+            text-align: right;
+        }
+        
+        .trait-progress {
+            flex: 1;
+            height: 12px;
+            background-color: #eee;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .trait-value {
+            height: 100%;
+            background-color: #3a86ff;
+        }
+        
+        .trait-percentage {
+            width: 40px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .career-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .career-item {
+            background-color: #e0ebff;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .restart-btn {
+            display: block;
+            width: 100%;
+            background-color: #3a86ff;
+            color: white;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                border-radius: 0;
+                margin-top: 0;
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+            
+            .question-text {
+                font-size: 16px;
+            }
+            
+            .option {
+                padding: 10px;
+                font-size: 14px;
+            }
+            
+            .career-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>个人性格与职业发展测评</h1>
+        
+        <div id="start-container">
+            <p class="intro">通过回答一系列问题，了解自己的性格特点和适合的职业发展方向。本测试共20题，需要5-10分钟完成。</p>
+            <button id="start-btn" class="btn">开始测试</button>
+        </div>
+        
+        <div id="test-container" style="display: none;">
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            
+            <div id="question-container" class="question-container">
+                <!-- 问题会动态加载到这里 -->
+            </div>
+            
+            <div class="btn-container">
+                <button id="prev-btn" class="btn btn-prev">上一题</button>
+                <button id="next-btn" class="btn btn-next">下一题</button>
+            </div>
+        </div>
+        
+        <div id="results-container">
+            <div class="result-card">
+                <div class="result-title">您的性格特点</div>
+                <p id="personality-desc"></p>
+                <div class="personality-chart" id="personality-chart">
+                    <!-- 性格特质图表将在这里动态生成 -->
+                </div>
+            </div>
+            
+            <div class="result-card">
+                <div class="result-title">推荐职业方向</div>
+                <p id="career-desc"></p>
+                <div class="career-list" id="career-list">
+                    <!-- 推荐职业将在这里动态生成 -->
+                </div>
+            </div>
+            
+            <button id="restart-btn" class="btn restart-btn">重新测试</button>
+        </div>
+    </div>
+
+    <script>
+        // 测试问题数据
+        const questions = [
+            {
+                text: "当面对新的社交场合时，您通常会：",
+                options: [
+                    "主动与他人交谈，认识新朋友",
+                    "先观察一段时间，熟悉环境后再加入互动",
+                    "更愿意与已经认识的人交流",
+                    "尽量避免这类场合，感到不自在"
+                ],
+                traits: {0: {extraversion: 10, openness: 5}, 1: {introversion: 5, thoughtfulness: 5}, 2: {introversion: 7}, 3: {introversion: 10}}
+            },
+            {
+                text: "在工作中遇到复杂问题时，您倾向于：",
+                options: [
+                    "分析问题的各个方面，寻找合理的解决方案",
+                    "寻求创新的、非传统的解决办法",
+                    "依靠过去的经验和已证实有效的方法",
+                    "咨询他人意见，集思广益"
+                ],
+                traits: {0: {analytical: 10}, 1: {creativity: 10, openness: 5}, 2: {practicality: 8}, 3: {teamwork: 8}}
+            },
+            {
+                text: "当计划被突然改变时，您通常会：",
+                options: [
+                    "感到不安和烦躁",
+                    "轻松适应新情况",
+                    "尝试重新控制局面，制定新计划",
+                    "分析变化的原因，以防未来再次发生"
+                ],
+                traits: {0: {stability: -5, adaptability: -5}, 1: {adaptability: 10, openness: 5}, 2: {leadership: 5, organization: 7}, 3: {analytical: 7}}
+            },
+            {
+                text: "在团队项目中，您更喜欢：",
+                options: [
+                    "担任领导角色，指导团队方向",
+                    "负责创意和构思部分",
+                    "处理细节和确保质量",
+                    "协调团队成员，确保良好沟通"
+                ],
+                traits: {0: {leadership: 10}, 1: {creativity: 8, openness: 5}, 2: {meticulousness: 8, practicality: 5}, 3: {teamwork: 10}}
+            },
+            {
+                text: "您如何看待规则和流程？",
+                options: [
+                    "必须严格遵守，它们确保秩序和效率",
+                    "理解其重要性，但有时需要灵活处理",
+                    "如果有更好的方法，应该质疑和改变规则",
+                    "只要不影响结果，细节不那么重要"
+                ],
+                traits: {0: {organization: 10, stability: 5}, 1: {adaptability: 7, practicality: 5}, 2: {openness: 8, creativity: 5}, 3: {creativity: 5, organization: -5}}
+            },
+            {
+                text: "当您需要做决定时，您通常依靠：",
+                options: [
+                    "逻辑和理性分析",
+                    "直觉和感受",
+                    "权衡利弊后的综合判断",
+                    "他人的建议和经验"
+                ],
+                traits: {0: {analytical: 10, practicality: 5}, 1: {intuition: 10, creativity: 5}, 2: {thoughtfulness: 8}, 3: {teamwork: 5}}
+            },
+            {
+                text: "在学习新技能时，您更喜欢：",
+                options: [
+                    "通过实践和亲身体验学习",
+                    "系统地学习理论后再实践",
+                    "边学边实践，逐步掌握",
+                    "通过观察他人或案例学习"
+                ],
+                traits: {0: {practicality: 8}, 1: {analytical: 7, thoughtfulness: 5}, 2: {adaptability: 5, practicality: 5}, 3: {thoughtfulness: 5}}
+            },
+            {
+                text: "当任务有严格期限时，您通常：",
+                options: [
+                    "提前计划，确保按时完成",
+                    "在最后期限前冲刺完成",
+                    "根据优先级安排工作，确保重要部分完成",
+                    "寻求帮助或延长期限"
+                ],
+                traits: {0: {organization: 10}, 1: {adaptability: 5, stability: -5}, 2: {thoughtfulness: 7, practicality: 5}, 3: {teamwork: 5}}
+            },
+            {
+                text: "您如何看待冒险？",
+                options: [
+                    "尽量避免，更喜欢稳定和可预测的情况",
+                    "在计算风险后谨慎尝试",
+                    "乐于尝试新事物和挑战",
+                    "视情况而定，不固定态度"
+                ],
+                traits: {0: {stability: 10, openness: -5}, 1: {thoughtfulness: 8, analytical: 5}, 2: {openness: 10, adaptability: 5}, 3: {adaptability: 7}}
+            },
+            {
+                text: "在与他人有分歧时，您倾向于：",
+                options: [
+                    "坚持自己的观点，用逻辑说服对方",
+                    "寻求共识和中间点",
+                    "倾听对方观点，开放讨论",
+                    "避免冲突，适当让步"
+                ],
+                traits: {0: {leadership: 5, analytical: 5}, 1: {teamwork: 8}, 2: {openness: 7, teamwork: 5}, 3: {stability: 5, teamwork: 3}}
+            },
+            {
+                text: "当面对批评时，您通常：",
+                options: [
+                    "仔细分析其有效性，接受有建设性的部分",
+                    "感到受伤但尝试改进",
+                    "寻求进一步解释和具体建议",
+                    "不太在意他人评价，保持自己的方式"
+                ],
+                traits: {0: {thoughtfulness: 8, analytical: 5}, 1: {adaptability: 5, stability: -3}, 2: {teamwork: 5, thoughtfulness: 5}, 3: {stability: 5, openness: -3}}
+            },
+            {
+                text: "您更喜欢哪种类型的工作环境？",
+                options: [
+                    "有清晰结构和明确期望的环境",
+                    "充满创意和创新的环境",
+                    "注重团队合作和良好氛围的环境",
+                    "允许独立工作和自主决策的环境"
+                ],
+                traits: {0: {organization: 8, stability: 5}, 1: {creativity: 10, openness: 5}, 2: {teamwork: 10}, 3: {introversion: 5, leadership: 3}}
+            },
+            {
+                text: "当遇到挫折时，您通常会：",
+                options: [
+                    "分析原因，制定新计划",
+                    "保持乐观，寻找其他解决方案",
+                    "寻求支持和建议",
+                    "需要时间恢复后再重新面对"
+                ],
+                traits: {0: {analytical: 7, stability: 5}, 1: {adaptability: 8, stability: 5}, 2: {teamwork: 7}, 3: {introversion: 5, stability: -3}}
+            },
+            {
+                text: "您如何看待细节？",
+                options: [
+                    "非常重视，喜欢确保一切精确无误",
+                    "关注重要细节，但不会纠结小事",
+                    "更关注整体框架和方向",
+                    "认为过度关注细节会限制创造力"
+                ],
+                traits: {0: {meticulousness: 10, organization: 5}, 1: {thoughtfulness: 7, practicality: 5}, 2: {leadership: 5, openness: 3}, 3: {creativity: 7, organization: -5}}
+            },
+            {
+                text: "在压力下工作时，您：",
+                options: [
+                    "能保持冷静和专注",
+                    "会感到紧张但能完成任务",
+                    "通过组织和计划来减轻压力",
+                    "寻求支持或调整期望"
+                ],
+                traits: {0: {stability: 10}, 1: {stability: 5}, 2: {organization: 7, analytical: 3}, 3: {teamwork: 5, adaptability: 3}}
+            },
+            {
+                text: "您认为自己在创新方面：",
+                options: [
+                    "总是寻找新想法和改进方法",
+                    "在必要时能提出创新解决方案",
+                    "更擅长完善和执行已有的想法",
+                    "更重视实用性而非创新"
+                ],
+                traits: {0: {creativity: 10, openness: 7}, 1: {creativity: 7, adaptability: 5}, 2: {practicality: 7, meticulousness: 5}, 3: {practicality: 10, creativity: -3}}
+            },
+            {
+                text: "在讨论中，您通常：",
+                options: [
+                    "积极表达自己的观点和想法",
+                    "倾听他人后再发表意见",
+                    "提供事实和数据支持讨论",
+                    "努力确保每个人都有发言机会"
+                ],
+                traits: {0: {extraversion: 8, leadership: 5}, 1: {thoughtfulness: 7, introversion: 3}, 2: {analytical: 8}, 3: {teamwork: 10}}
+            },
+            {
+                text: "您更喜欢哪种类型的问题？",
+                options: [
+                    "有明确答案的具体问题",
+                    "需要创意思考的开放性问题",
+                    "需要深入分析的复杂问题",
+                    "与人际关系相关的问题"
+                ],
+                traits: {0: {practicality: 8, stability: 5}, 1: {creativity: 8, openness: 5}, 2: {analytical: 10, thoughtfulness: 5}, 3: {teamwork: 7}}
+            },
+            {
+                text: "您认为自己的时间管理能力：",
+                options: [
+                    "非常出色，总是按计划行事",
+                    "一般，有时会拖延但最终会完成",
+                    "根据任务重要性灵活调整",
+                    "不太擅长，常常感到时间不够用"
+                ],
+                traits: {0: {organization: 10, stability: 5}, 1: {stability: -3}, 2: {adaptability: 7, thoughtfulness: 3}, 3: {organization: -5}}
+            },
+            {
+                text: "在人际关系中，您认为自己：",
+                options: [
+                    "擅长建立广泛的社交网络",
+                    "更看重少数深厚的友谊",
+                    "能在不同社交圈中自如切换",
+                    "更享受独处或小团体活动"
+                ],
+                traits: {0: {extraversion: 10, teamwork: 5}, 1: {introversion: 5, teamwork: 3}, 2: {adaptability: 8, extraversion: 5}, 3: {introversion: 8}}
+            }
+        ];
+
+        // 性格特质描述
+        const traitDescriptions = {
+            extraversion: "外向性 - 您在社交场合感到自在，享受与人交流",
+            introversion: "内向性 - 您更偏好独处或小范围社交，善于深入思考",
+            analytical: "分析能力 - 您善于逻辑思考和解决复杂问题",
+            creativity: "创造力 - 您有创新思维，能提出独特想法",
+            organization: "组织能力 - 您擅长规划和结构化工作",
+            leadership: "领导力 - 您有指导和影响他人的能力",
+            adaptability: "适应能力 - 您能灵活应对变化和新环境",
+            stability: "稳定性 - 您在压力下保持冷静，喜欢一致性",
+            teamwork: "团队协作 - 您擅长与他人合作，重视集体目标",
+            meticulousness: "细致性 - 您关注细节，追求准确和完美",
+            thoughtfulness: "思考性 - 您深入思考问题，不急于做决定",
+            practicality: "实用性 - 您重视实际结果和实用解决方案",
+            openness: "开放性 - 您乐于尝试新事物和接受新想法",
+            intuition: "直觉力 - 您信任自己的感觉和第一印象"
+        };
+
+        // 职业推荐数据
+        const careerRecommendations = {
+            "分析型": {
+                traits: ["analytical", "thoughtfulness", "meticulousness"],
+                description: "您擅长逻辑思考和解决问题，适合需要深入分析和精确性的工作。",
+                careers: ["数据分析师", "金融顾问", "研究员", "工程师", "科学家", "质量控制", "策略规划"]
+            },
+            "创意型": {
+                traits: ["creativity", "openness", "intuition"],
+                description: "您有创新思维和丰富想象力，适合需要创意和原创性思考的工作。",
+                careers: ["设计师", "艺术家", "作家", "营销创意", "产品开发", "建筑师", "内容创作者"]
+            },
+            "组织型": {
+                traits: ["organization", "stability", "meticulousness"],
+                description: "您擅长规划和结构化工作，适合需要秩序和精确管理的职业。",
+                careers: ["项目管理", "行政管理", "财务规划", "物流管理", "活动策划", "运营专员", "系统管理员"]
+            },
+            "领导型": {
+                traits: ["leadership", "extraversion", "stability"],
+                description: "您有引导他人和做决策的能力，适合担任领导和管理角色。",
+                careers: ["管理人员", "企业家", "主管", "培训师", "咨询顾问", "销售经理", "政策制定者"]
+            },
+            "社交型": {
+                traits: ["extraversion", "teamwork", "adaptability"],
+                description: "您擅长人际交往和团队合作，适合与人打交道的工作。",
+                careers: ["人力资源", "销售代表", "客户服务", "公关专员", "教师", "社工", "医疗服务"]
+            },
+            "实用型": {
+                traits: ["practicality", "stability", "meticulousness"],
+                description: "您重视实际成果和具体应用，适合动手和解决现实问题的工作。",
+                careers: ["技术员", "医护人员", "工匠", "厨师", "农业专家", "维修技师", "建筑工人"]
+            },
+            "创新型": {
+                traits: ["creativity", "analytical", "openness"],
+                description: "您既有创造力又有分析能力，适合需要创新解决方案的领域。",
+                careers: ["研发专家", "产品经理", "科技创新", "战略顾问", "市场分析师", "游戏开发", "用户体验设计"]
+            },
+            "支持型": {
+                traits: ["teamwork", "stability", "thoughtfulness"],
+                description: "您乐于帮助他人并提供支持，适合服务和辅助性质的工作。",
+                careers: ["顾问", "治疗师", "客户支持", "培训师", "护理人员", "社区服务", "教育助理"]
+            }
+        };
+
+        // 全局变量
+        let currentQuestionIndex = 0;
+        let answers = [];
+        let traits = {
+            extraversion: 0,
+            introversion: 0,
+            analytical: 0,
+            creativity: 0,
+            organization: 0,
+            leadership: 0,
+            adaptability: 0,
+            stability: 0,
+            teamwork: 0,
+            meticulousness: 0,
+            thoughtfulness: 0,
+            practicality: 0,
+            openness: 0,
+            intuition: 0
+        };
+
+        // DOM元素
+        const startContainer = document.getElementById('start-container');
+        const testContainer = document.getElementById('test-container');
+        const questionContainer = document.getElementById('question-container');
+        const progressBar = document.getElementById('progress-bar');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const resultsContainer = document.getElementById('results-container');
+        const personalityDesc = document.getElementById('personality-desc');
+        const personalityChart = document.getElementById('personality-chart');
+        const careerDesc = document.getElementById('career-desc');
+        const careerList = document.getElementById('career-list');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // 初始化测试
+        startBtn.addEventListener('click', startTest);
+        prevBtn.addEventListener('click', goToPreviousQuestion);
+        nextBtn.addEventListener('click', goToNextQuestion);
+        restartBtn.addEventListener('click', restartTest);
+
+        // 开始测试
+        function startTest() {
+            startContainer.style.display = 'none';
+            testContainer.style.display = 'block';
+            showQuestion(0);
+            updateProgressBar();
+        }
+
+        // 显示问题
+        function showQuestion(index) {
+            currentQuestionIndex = index;
+            
+            // 更新按钮状态
+            prevBtn.disabled = index === 0;
+            nextBtn.textContent = index === questions.length - 1 ? '查看结果' : '下一题';
+            
+            // 创建问题
+            questionContainer.style.display = 'block';
+            questionContainer.innerHTML = '';
+            
+            const questionText = document.createElement('div');
+            questionText.className = 'question-text';
+            questionText.textContent = `${index + 1}. ${questions[index].text}`;
+            questionContainer.appendChild(questionText);
+            
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'options';
+            
+            questions[index].options.forEach((option, optionIndex) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                if (answers[index] === optionIndex) {
+                    optionDiv.classList.add('selected');
+                }
+                optionDiv.textContent = option;
+                optionDiv.addEventListener('click', () => selectOption(optionIndex));
+                optionsDiv.appendChild(optionDiv);
+            });
+            
+            questionContainer.appendChild(optionsDiv);
+            updateProgressBar();
+        }
+
+        // 选择选项
+        function selectOption(optionIndex) {
+            answers[currentQuestionIndex] = optionIndex;
+            
+            // 更新选项样式
+            const options = document.querySelectorAll('.option');
+            options.forEach((option, index) => {
+                if (index === optionIndex) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+        }
+
+        // 更新进度条
+        function updateProgressBar() {
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        // 上一题
+        function goToPreviousQuestion() {
+            if (currentQuestionIndex > 0) {
+                showQuestion(currentQuestionIndex - 1);
+            }
+        }
+
+        // 下一题或查看结果
+        function goToNextQuestion() {
+            if (answers[currentQuestionIndex] === undefined) {
+                alert('请先选择一个选项');
+                return;
+            }
+            
+            if (currentQuestionIndex < questions.length - 1) {
+                showQuestion(currentQuestionIndex + 1);
+            } else {
+                calculateResults();
+                showResults();
+            }
+        }
+
+        // 计算结果
+        function calculateResults() {
+            // 重置特质得分
+            Object.keys(traits).forEach(trait => {
+                traits[trait] = 0;
+            });
+            
+            // 根据答案计算特质得分
+            answers.forEach((answer, questionIndex) => {
+                const questionTraits = questions[questionIndex].traits[answer];
+                if (questionTraits) {
+                    Object.keys(questionTraits).forEach(trait => {
+                        traits[trait] += questionTraits[trait];
+                    });
+                }
+            });
+            
+            // 归一化分数到0-100之间
+            const maxPossibleScore = 100;
+            Object.keys(traits).forEach(trait => {
+                traits[trait] = Math.min(Math.max(Math.round(traits[trait] * 5), 0), 100);
+            });
+        }
+
+        // 显示结果
+        function showResults() {
+            testContainer.style.display = 'none';
+            resultsContainer.style.display = 'block';
+            
+            // 生成性格描述
+            generatePersonalityDescription();
+            
+            // 生成特质图表
+            generateTraitChart();
+            
+            // 生成职业推荐
+            generateCareerRecommendations();
+        }
+
+        // 生成性格描述
+        function generatePersonalityDescription() {
+            // 找出得分最高的三个特质
+            const sortedTraits = Object.entries(traits)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            let description = "根据您的测试结果，您的主要性格特点是：";
+            
+            sortedTraits.forEach(([trait, score], index) => {
+                if (score > 50) {  // 只显示得分较高的特质
+                    description += `<strong>${traitDescriptions[trait].split(' - ')[0]}</strong>`;
+                    if (index < sortedTraits.length - 1) {
+                        description += "、";
+                    }
+                }
+            });
+            
+            description += "。";
+            
+            // 添加详细描述
+            description += " 您";
+            if (traits.extraversion > traits.introversion) {
+                description += "偏向外向，喜欢社交活动；";
+            } else {
+                description += "偏向内向，珍视独处时间；";
+            }
+            
+            if (traits.analytical > 60) {
+                description += "具有很强的分析思维能力；";
+            }
+            
+            if (traits.creativity > 60) {
+                description += "富有创造力和想象力；";
+            }
+            
+            if (traits.organization > 60) {
+                description += "善于组织和规划；";
+            }
+            
+            if (traits.adaptability > 60) {
+                description += "适应能力强，能灵活应对变化；";
+            }
+            
+            if (traits.teamwork > 60) {
+                description += "擅长团队合作；";
+            }
+            
+            personalityDesc.innerHTML = description;
+        }
+
+        // 生成特质图表
+        function generateTraitChart() {
+            personalityChart.innerHTML = '';
+            
+            // 只展示主要特质
+            const mainTraits = ["extraversion", "introversion", "analytical", "creativity", "organization", 
+                               "leadership", "adaptability", "stability", "teamwork"];
+            
+            mainTraits.forEach(trait => {
+                const traitScore = traits[trait];
+                if (traitScore > 0) {  // 只显示有得分的特质
+                    const traitBar = document.createElement('div');
+                    traitBar.className = 'trait-bar';
+                    
+                    const traitName = document.createElement('div');
+                    traitName.className = 'trait-name';
+                    traitName.textContent = traitDescriptions[trait].split(' - ')[0];
+                    
+                    const traitProgress = document.createElement('div');
+                    traitProgress.className = 'trait-progress';
+                    
+                    const traitValue = document.createElement('div');
+                    traitValue.className = 'trait-value';
+                    traitValue.style.width = `${traitScore}%`;
+                    
+                    const traitPercentage = document.createElement('div');
+                    traitPercentage.className = 'trait-percentage';
+                    traitPercentage.textContent = `${traitScore}%`;
+                    
+                    traitProgress.appendChild(traitValue);
+                    traitBar.appendChild(traitName);
+                    traitBar.appendChild(traitProgress);
+                    traitBar.appendChild(traitPercentage);
+                    
+                    personalityChart.appendChild(traitBar);
+                }
+            });
+        }
+
+        // 生成职业推荐
+        function generateCareerRecommendations() {
+            // 计算每种职业类型的匹配度
+            const careerScores = {};
+            
+            Object.entries(careerRecommendations).forEach(([careerType, data]) => {
+                let score = 0;
+                let maxPossibleScore = 0;
+                
+                data.traits.forEach(trait => {
+                    score += traits[trait];
+                    maxPossibleScore += 100;  // 假设每个特质最高分为100
+                });
+                
+                careerScores[careerType] = (score / maxPossibleScore) * 100;
+            });
+            
+            // 按匹配度排序
+            const sortedCareers = Object.entries(careerScores)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3);  // 取前三个最匹配的职业类型
+            
+            // 显示推荐职业
+            let description = "基于您的性格特点，以下职业方向可能更适合您：";
+            careerDesc.textContent = description;
+            
+            careerList.innerHTML = '';
+            
+            // 收集所有推荐职业
+            const allRecommendedCareers = [];
+            sortedCareers.forEach(([careerType, score]) => {
+                // 添加职业类型描述
+                const typeDesc = document.createElement('p');
+                typeDesc.innerHTML = `<strong>${careerType}</strong>（匹配度：${Math.round(score)}%）- ${careerRecommendations[careerType].description}`;
+                careerDesc.appendChild(typeDesc);
+                
+                // 收集该类型的职业
+                careerRecommendations[careerType].careers.forEach(career => {
+                    allRecommendedCareers.push(career);
+                });
+            });
+            
+            // 去重并随机选择最多8个职业显示
+            const uniqueCareers = [...new Set(allRecommendedCareers)];
+            const shuffledCareers = uniqueCareers.sort(() => 0.5 - Math.random()).slice(0, 8);
+            
+            shuffledCareers.forEach(career => {
+                const careerItem = document.createElement('div');
+                careerItem.className = 'career-item';
+                careerItem.textContent = career;
+                careerList.appendChild(careerItem);
+            });
+        }
+
+        // 重新测试
+        function restartTest() {
+            currentQuestionIndex = 0;
+            answers = [];
+            Object.keys(traits).forEach(trait => {
+                traits[trait] = 0;
+            });
+            
+            resultsContainer.style.display = 'none';
+            startContainer.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
